@@ -1,21 +1,32 @@
 ---
 title: "Comentários e cultura"
+author: "Whendell Feijó Magalhães"
 output:
     html_document:
+        code_folding: hide
     df_print: paged
 theme: sandstone
+---
+
+<style>
+body{
+text-align: justify}
+</style>
+
 ---
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(here)
 library(viridis)
-source(here::here("code/lib.R"))
+library(formattable)
+# source(here::here("code/import_data.R"))
 theme_set(theme_bw())
 
 knitr::opts_chunk$set(tidy = FALSE,
-                      fig.width = 6,
-                      fig.height = 5)
+                      fig.width = 8,
+                      fig.height = 6,
+                      fig.align = "center")
 ```
 
 ```{r read}
@@ -33,7 +44,7 @@ dados = read_csv(
     )
 ) %>% 
     filter(usuarios > 200)
-glimpse(dados)
+# glimpse(dados)
 ```
 
 Estamos interessados na relação entre quanto as pessoas de diferentes países comentam em questões dos outros. A proporção das pessoas do país que comentou nas questões de outros está medido na variável `comentaram_prop`. 
@@ -44,11 +55,56 @@ Considerando essa variável, queremos examinar a relação entre ela e o quão h
 
 Faça uma visualização que usa os princípios de eficácia no projeto de visualizações para facilitar as comparações que você acha que são as mais importantes para entendermos esse contexto. 
 
+
+```{r}
+
+filtered_dados <- dados %>%
+    filter(!is.na(Internet), !is.na(usuarios), !is.na(PDI), !is.na(comentaram_prop), !is.na(six_regions))
+
+options(scipen = 999)
+
+filtered_dados %>%
+    ggplot(aes(x = comentaram_prop, y = PDI, size = Internet, colour = usuarios)) + 
+    geom_point(alpha = 0.5)
+```
+
 ## Outras formas de ver
 
 Em seguida, faça 5 visualizações que usem as mesmas variáveis e também pontos, mas que sejam **menos eficazes** que a que você escolheu acima. 
 
+```{r}
+filtered_dados %>%
+    ggplot(aes(x = usuarios, y = Internet, size = comentaram_prop, colour = PDI)) + 
+    geom_point(alpha = 0.4)
+
+filtered_dados %>%
+    ggplot(aes(x = usuarios, y = Internet, size = comentaram_prop, colour = PDI)) + 
+    geom_point(shape = 11)
+
+filtered_dados %>%
+    ggplot(aes(x = comentaram_prop, y = usuarios, size = Internet, colour = PDI)) + 
+    scale_y_continuous(trans = "log10") +
+    geom_point(alpha = 0.4)
+
+filtered_dados %>%
+    ggplot(aes(x = PDI, y = Internet, size = usuarios, colour = comentaram_prop)) + 
+    geom_point(alpha = 0.5)
+
+filtered_dados %>%
+    ggplot(aes(x = PDI, y = comentaram_prop, size = usuarios, colour = Internet)) + 
+    geom_point(alpha = 0.5)
+
+```
+
+
 ## Bônus
 
 Inclua o continente dos países (`six_regions`) na visualização.
+
+```{r}
+filtered_dados %>%
+    ggplot(aes(x = comentaram_prop, y = PDI, size = Internet, colour = usuarios)) + 
+    geom_point(alpha = 0.5) +
+    facet_wrap(~ six_regions)
+```
 
